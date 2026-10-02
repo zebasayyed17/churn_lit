@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#eee6d5" />
+<title>CHURN//LAB · Customer Retention Console</title>
+
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#e9e1d0;
+  --bg2:#e1d8c5;
+  --panel:#f2ecdf;
+  --panel2:#e8dfcd;
+  --panel3:#f7f1e6;
+  --line:rgba(231,179,137,.16);
+  --line-strong:rgba(193,96,55,.34);
+  --text:#171815;
+  --muted:#6e6a60;
+  --cyan:#c46038;
+  --blue:#a84f30;
+  --violet:#c46038;
+  --pink:#d27446;
+  --green:#7f8a4a;
+  --red:#b75233;
+  --yellow:#9f8a62;
+  --shadow:0 24px 70px rgba(0,0,0,.44);
+  --mono:"DM Mono",monospace;
+  --display:"Space Grotesk",sans-serif;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg)}
+body{
+  color:var(--text);
+  font-family:var(--display);
+  overflow-x:hidden;
+  background:
+    radial-gradient(900px 500px at 85% -5%,rgba(196,96,56,.10),transparent 65%),
+    radial-gradient(760px 480px at 3% 20%,rgba(196,96,56,.07),transparent 64%),
+    linear-gradient(180deg,#e9e1d0 0%,#e9e1d0 100%);
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.18;
+  background-image:
+    linear-gradient(rgba(23,24,21,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(23,24,21,.045) 1px,transparent 1px);
+  background-size:40px 40px;
+  mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.45) 72%,transparent 100%);
+}
+
+.app{
+  width:min(1440px,calc(100% - 64px));
+  margin:auto;
+  padding:20px 0 36px;
+}
+
+.topline{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 0 15px;
+  border-bottom:1px solid var(--line);
+  font:500 10px var(--mono);
+  color:#72809d;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.brand{display:flex;align-items:center;gap:10px;color:#f8f2e7}
+.brand-mark{
+  width:25px;height:25px;display:grid;place-items:center;
+  border-radius:7px 3px 7px 3px;
+  color:#08101c;background:var(--cyan);
+  font:700 11px var(--mono);
+  transform:rotate(-5deg);
+  box-shadow:0 0 22px rgba(196,96,56,.16);
+}
+.system-state{display:flex;align-items:center;gap:8px}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 13px var(--green)}
+
+.hero{
+  padding:40px 0 28px;
+  display:grid;
+  grid-template-columns:1.15fr .62fr;
+  gap:42px;
+  align-items:end;
+}
+.hero h1{
+  margin:0;
+  max-width:920px;
+  font-size:clamp(60px,7.2vw,105px);
+  line-height:.84;
+  letter-spacing:-.068em;
+  font-weight:700;
+}
+.hero h1 .slash{color:var(--pink)}
+.hero h1 .lime{
+  background:linear-gradient(90deg,var(--cyan),var(--violet) 55%,var(--pink));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.hero-sub{
+  max-width:770px;
+  margin:18px 0 0;
+  color:#94a0b9;
+  font-size:15px;
+  line-height:1.60;
+}
+
+.hero-meta{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+.meta-tile{
+  min-height:78px;
+  padding:14px;
+  border:1px solid var(--line);
+  background:#f2ecdf;
+}
+.meta-label{
+  color:#65718b;
+  font:500 9px var(--mono);
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.meta-value{
+  margin-top:8px;
+  color:#f2ecdf;
+  font:500 13px var(--mono);
+}
+.meta-value.lime{color:var(--cyan)}
+.meta-orbit{
+  grid-column:1/-1;
+  height:62px;
+  position:relative;
+  border:1px solid var(--line);
+  background:#f2ecdf;
+  overflow:hidden;
+}
+.meta-orbit span{
+  position:absolute;left:13px;top:19px;
+  color:#6f7b95;font:500 8px var(--mono);letter-spacing:.08em
+}
+.meta-orbit .o1,.meta-orbit .o2,.meta-orbit .o3,.meta-orbit .o4{
+  position:absolute;border-radius:50%
+}
+.meta-orbit .o1{
+  width:86px;height:86px;right:16px;top:-12px;
+  border:1px dashed rgba(23,24,21,.28)
+}
+.meta-orbit .o2{
+  width:56px;height:56px;right:31px;top:3px;
+  border:1px solid rgba(184,198,255,.28)
+}
+.meta-orbit .o3{
+  width:8px;height:8px;right:55px;top:27px;
+  background:var(--pink);box-shadow:0 0 15px rgba(196,96,56,.32)
+}
+.meta-orbit .o4{
+  width:6px;height:6px;right:27px;top:12px;
+  background:var(--cyan);box-shadow:0 0 13px rgba(196,96,56,.28)
+}
+
+.workspace{
+  display:grid;
+  grid-template-columns:minmax(0,1.22fr) minmax(400px,.78fr);
+  gap:18px;
+  align-items:start;
+}
+
+.panel{
+  position:relative;
+  border:1px solid var(--line);
+  background:#f2ecdf;
+  box-shadow:var(--shadow);
+}
+
+.input-panel{
+  border-radius:20px;
+  padding:22px;
+  overflow:hidden;
+}
+.input-panel:before{
+  content:"INPUT / SIGNAL MATRIX";
+  position:absolute;
+  right:0;
+  top:0;
+  padding:7px 10px;
+  background:linear-gradient(90deg,var(--blue),var(--violet));
+  color:#f8f2e7;
+  font:700 9px var(--mono);
+  letter-spacing:.08em;
+}
+
+.panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:18px;
+  padding-bottom:14px;
+  margin-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+.panel-title{
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:-.02em;
+}
+.panel-note{
+  margin-top:5px;
+  color:#697691;
+  font:500 10px var(--mono);
+}
+.counter{
+  color:#8f9ab4;
+  font:500 9px var(--mono);
+  padding:6px 8px;
+  border:1px solid var(--line);
+  background:#e8dfcd;
+}
+
+.signal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.signal-field{
+  min-height:96px;
+  padding:12px;
+  border:1px solid rgba(23,24,21,.11);
+  border-radius:14px;
+  background:#f7f1e6;
+  transition:border-color .16s ease,transform .16s ease,box-shadow .16s ease;
+}
+.signal-field:hover{
+  border-color:rgba(94,124,255,.38);
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+}
+.field-top{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-bottom:10px;
+}
+.field-index{
+  color:#53617c;
+  font:500 8px var(--mono);
+}
+.field-top label{
+  flex:1;
+  min-width:0;
+  color:#cbd3e5;
+  font-size:10px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.field-type{
+  color:#506079;
+  font:500 7px var(--mono);
+}
+.signal-field input{
+  width:100%;
+  min-height:38px;
+  color:#f8f2e7;
+  border:1px solid rgba(23,24,21,.14);
+  background:#fbf5ea;
+  border-radius:10px;
+  padding:9px 10px;
+  outline:none;
+  font:500 14px var(--mono);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.16);
+}
+.signal-field input:focus{
+  border-color:rgba(57,232,255,.62);
+  box-shadow:0 0 0 3px rgba(196,96,56,.07),inset 0 0 0 1px rgba(196,96,56,.07);
+}
+
+.prompt-bar{
+  margin-top:14px;
+  border:1px solid var(--line);
+  background:#e8dfcd;
+  padding:12px;
+}
+.prompt-label{
+  display:flex;justify-content:space-between;align-items:center;
+  color:#71809b;font:500 8px var(--mono);letter-spacing:.11em;text-transform:uppercase;
+  margin-bottom:8px;
+}
+.prompt-caret{color:var(--cyan)}
+
+.prompt-input{
+  width:100%;
+  min-height:82px;
+  resize:vertical;
+  border:1px solid rgba(23,24,21,.16);
+  background:#080d18;
+  color:#f4ede1;
+  padding:12px;
+  outline:none;
+  font:500 12px/1.55 var(--mono);
+  border-radius:10px;
+}
+.prompt-input::placeholder{color:#4f5a70}
+.prompt-input:focus{
+  border-color:rgba(196,96,56,.42);
+  box-shadow:0 0 0 3px rgba(196,96,56,.07);
+}
+
+.form-actions{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+.action-main{
+  flex:1;
+  min-height:46px;
+  border:0;
+  border-radius:12px;
+  padding:12px 15px;
+  color:#07101b;
+  background:linear-gradient(90deg,var(--cyan),#68bfff 43%,var(--violet));
+  font:800 10px var(--mono);
+  letter-spacing:.07em;
+  cursor:pointer;
+  box-shadow:0 13px 30px rgba(57,232,255,.11);
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+}
+.action-main:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.06);
+  box-shadow:0 18px 40px rgba(57,232,255,.15);
+}
+.action-reset{
+  min-width:95px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 14px;
+  background:#e8dfcd;
+  color:#8995ad;
+  font:600 10px var(--mono);
+  cursor:pointer;
+}
+.action-reset:hover{border-color:rgba(23,24,21,.28);color:#d3d9e6}
+
+.output-panel{
+  border-radius:20px;
+  overflow:hidden;
+  min-height:100%;
+}
+.output-inner{padding:18px}
+.output-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--line);
+}
+.console-id{
+  color:#68738a;
+  font:500 8px var(--mono);
+  letter-spacing:.05em;
+}
+.console-id strong{color:var(--cyan)}
+
+.empty{
+  min-height:515px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  padding:26px;
+}
+.empty-art{
+  width:184px;
+  height:184px;
+  margin:0 auto 20px;
+  position:relative;
+  display:grid;
+  place-items:center;
+}
+.empty-art:before,.empty-art:after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(23,24,21,.18);
+}
+.empty-art:before{inset:6px;border-style:dashed}
+.empty-art:after{inset:34px;border-color:rgba(57,232,255,.22)}
+.empty-core{
+  width:70px;height:70px;border-radius:50%;
+  border:1px solid rgba(57,232,255,.42);
+  background:radial-gradient(circle at 35% 30%,rgba(196,96,56,.13),rgba(255,255,255,.02) 66%);
+  display:grid;place-items:center;
+  color:var(--cyan);
+  font:500 17px var(--mono);
+  box-shadow:0 0 50px rgba(196,96,56,.07);
+}
+.empty h3{
+  margin:0;
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-.03em;
+}
+.empty p{
+  max-width:300px;
+  margin:8px auto 0;
+  color:#707c95;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.verdict{
+  padding:16px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+.verdict:after{
+  content:"";
+  position:absolute;
+  width:150px;height:150px;right:-72px;top:-70px;border-radius:50%;
+  border:1px solid rgba(23,24,21,.11);
+}
+.verdict.stay{border-left:4px solid var(--green);background:rgba(127,138,74,.05)}
+.verdict.churn{border-left:4px solid var(--red);background:rgba(196,96,56,.055)}
+.verdict-kicker{
+  color:#717d95;
+  font:500 8px var(--mono);
+  letter-spacing:.13em;
+}
+.verdict-main{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:15px;
+  align-items:end;
+  margin-top:8px;
+}
+.verdict-word{
+  font-size:49px;
+  line-height:.86;
+  letter-spacing:-.06em;
+  font-weight:700;
+}
+.verdict.stay .verdict-word{color:var(--green)}
+.verdict.churn .verdict-word{color:var(--red)}
+.risk-readout{text-align:right}
+.risk-readout span{
+  display:block;
+  color:#6c7890;
+  font:500 7px var(--mono);
+  letter-spacing:.10em;
+}
+.risk-readout strong{
+  display:block;
+  margin-top:3px;
+  color:#f5eee3;
+  font:500 25px var(--mono);
+}
+
+.ring-area{
+  position:relative;
+  display:grid;
+  place-items:center;
+  margin:12px 0 14px;
+}
+.ring-svg{width:196px;height:196px;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:#cfc2ad;stroke-width:11}
+.ring-progress{
+  fill:none;
+  stroke:var(--cyan);
+  stroke-width:11;
+  stroke-linecap:round;
+  filter:drop-shadow(0 0 8px rgba(57,232,255,.28));
+  transition:stroke-dashoffset .7s cubic-bezier(.2,.85,.2,1);
+}
+.ring-copy{text-align:center;position:absolute}
+.ring-copy small{
+  display:block;
+  color:#72809b;
+  font:500 8px var(--mono);
+  letter-spacing:.13em;
+}
+.ring-copy strong{
+  display:block;
+  margin-top:5px;
+  color:#f4ede1;
+  font:500 33px var(--mono);
+  letter-spacing:-.05em;
+}
+
+.prob-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.prob-tile{
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#15100d;
+}
+.prob-tile .label{
+  color:#69758d;
+  font:500 7px var(--mono);
+  letter-spacing:.10em;
+}
+.prob-tile .value{
+  margin-top:6px;
+  font:500 16px var(--mono);
+}
+.prob-tile.stay .value{color:var(--green)}
+.prob-tile.churn .value{color:var(--red)}
+
+.signal-console{
+  margin-top:10px;
+  padding-top:11px;
+  border-top:1px solid var(--line);
+}
+.console-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#6f7a91;
+  font:500 7px var(--mono);
+  letter-spacing:.12em;
+  margin-bottom:9px;
+}
+.signal-row{
+  display:grid;
+  grid-template-columns:140px 1fr 56px;
+  gap:8px;
+  align-items:center;
+  margin:8px 0;
+}
+.signal-name{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  color:#9aa5bb;
+  font-size:8px;
+}
+.signal-dot{width:5px;height:5px;border-radius:50%}
+.signal-dot.hot{background:var(--red);box-shadow:0 0 7px rgba(196,96,56,.34)}
+.signal-dot.cool{background:var(--cyan);box-shadow:0 0 7px rgba(57,232,255,.34)}
+.signal-track{height:4px;background:#d7cbb7;border-radius:99px;overflow:hidden}
+.signal-fill{height:100%;border-radius:inherit}
+.signal-fill.hot{background:linear-gradient(90deg,var(--red),var(--pink))}
+.signal-fill.cool{background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.signal-num{text-align:right;font:500 7px var(--mono)}
+.hot-text{color:#ff91a4}.cool-text{color:#65edff}
+
+.machine-line{
+  margin-top:9px;
+  color:#58657d;
+  font:500 7px var(--mono);
+  letter-spacing:.04em;
+}
+.machine-line span{color:var(--cyan)}
+
+.json-block{
+  margin-top:9px;
+  padding:10px;
+  background:#fbf5ea;
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:auto;
+}
+.json-block pre{
+  margin:0;
+  color:#73809a;
+  font:500 7px/1.55 var(--mono);
+}
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:11px 2px 0;
+  color:#56627a;
+  font:500 7px var(--mono);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+@media(max-width:1180px){
+  .workspace{grid-template-columns:1fr 360px}
+}
+@media(max-width:1000px){
+  .hero{grid-template-columns:1fr}
+  .workspace{grid-template-columns:1fr}
+}
+@media(max-width:760px){
+  .app{width:calc(100% - 16px)}
+  .hero h1{font-size:54px}
+  .signal-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+
+
+<style id="xscel-palette-override">
+html, body {
+  background: #e9e1d0 !important;
+  color: #171815 !important;
+}
+
+body {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(196,96,56,.055), transparent 28%),
+    radial-gradient(circle at 8% 75%, rgba(127,138,74,.045), transparent 26%),
+    #e9e1d0 !important;
+}
+
+body:before {
+  opacity: .24 !important;
+  background-image:
+    linear-gradient(rgba(23,24,21,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,24,21,.035) 1px, transparent 1px) !important;
+  background-size: 36px 36px !important;
+}
+
+.panel,
+.meta-tile,
+.meta-orbit,
+.signal-field,
+.prob-tile {
+  background: #f2ecdf !important;
+  border-color: rgba(23,24,21,.18) !important;
+}
+
+.signal-field:hover {
+  background: #f8f2e7 !important;
+  border-color: rgba(196,96,56,.52) !important;
+}
+
+.signal-field input,
+.prompt-input {
+  background: #fbf5ea !important;
+  color: #171815 !important;
+  border-color: rgba(23,24,21,.22) !important;
+}
+
+.counter,
+.prompt-bar,
+.json-block,
+.action-reset {
+  background: #e3dac7 !important;
+  border-color: rgba(23,24,21,.18) !important;
+}
+
+.output-panel,
+.input-panel {
+  box-shadow: 0 18px 45px rgba(68,55,38,.12) !important;
+}
+
+.action-main {
+  background: #171815 !important;
+  color: #f4ede1 !important;
+  box-shadow: none !important;
+}
+
+.action-main:hover {
+  background: #c46038 !important;
+}
+
+.input-panel:before {
+  background: #c46038 !important;
+}
+
+.panel-header,
+.output-head,
+.signal-console,
+.topline {
+  border-color: rgba(23,24,21,.20) !important;
+}
+
+.hero h1 .slash,
+.verdict.churn .verdict-word,
+.hot-text,
+.prob-tile.churn .value {
+  color: #c46038 !important;
+}
+
+.hero h1 .lime {
+  color: #c46038 !important;
+  background: none !important;
+}
+
+.verdict.churn {
+  border-left-color: #c46038 !important;
+  background: rgba(196,96,56,.055) !important;
+}
+
+.verdict.stay {
+  border-left-color: #7f8a4a !important;
+  background: rgba(127,138,74,.055) !important;
+}
+
+.ring-progress {
+  stroke: #c46038 !important;
+  filter: none !important;
+}
+
+.ring-track {
+  stroke: rgba(23,24,21,.13) !important;
+}
+
+.signal-fill.hot {
+  background: #c46038 !important;
+}
+
+.signal-fill.cool,
+.signal-dot.cool {
+  background: #7f8a4a !important;
+}
+
+.signal-dot.hot {
+  background: #c46038 !important;
+}
+
+.cool-text,
+.machine-line span {
+  color: #7f8a4a !important;
+}
+
+.brand-mark {
+  background: #c46038 !important;
+  color: #f5eee3 !important;
+  box-shadow: none !important;
+}
+
+.pulse {
+  background: #7f8a4a !important;
+  box-shadow: 0 0 0 3px rgba(127,138,74,.12) !important;
+}
+
+.system-state,
+.console-id,
+.panel-note,
+.hero-sub,
+.meta-label,
+.signal-name,
+.machine-line,
+.footer {
+  color: #6e6a60 !important;
+}
+
+.meta-value.lime,
+.meta-value {
+  color: #171815 !important;
+}
+
+.meta-orbit .o3 {
+  background: #c46038 !important;
+  box-shadow: none !important;
+}
+
+.meta-orbit .o4 {
+  background: #7f8a4a !important;
+  box-shadow: none !important;
+}
+
+.empty-core {
+  color: #c46038 !important;
+  border-color: rgba(196,96,56,.42) !important;
+  background: #f5eee3 !important;
+  box-shadow: none !important;
+}
+
+.empty-art:before,
+.empty-art:after {
+  border-color: rgba(23,24,21,.22) !important;
+}
+
+.panel-title,
+.field-top label,
+.empty h3,
+.verdict-word,
+.risk-readout strong,
+.ring-copy strong {
+  color: #171815 !important;
+}
+
+.verdict.stay .verdict-word {
+  color: #62713f !important;
+}
+
+.prob-tile.stay .value {
+  color: #62713f !important;
+}
+
+.risk-readout span,
+.ring-copy small,
+.prob-tile .label,
+.console-title,
+.field-index,
+.field-type {
+  color: #7c786e !important;
+}
+
+.json-block pre {
+  color: #625e55 !important;
+}
+
+.prompt-input::placeholder {
+  color: #908979 !important;
+}
+
+.action-reset {
+  color: #5f5b52 !important;
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <div class="topline">
+    <div class="brand"><span class="brand-mark">C</span> CHURN//LAB</div>
+    <div class="system-state"><span class="pulse"></span> DECISION CONSOLE · ACTIVE</div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <h1>READ THE <span class="slash">//</span><br><span class="lime">RISK.</span></h1>
+      <p class="hero-sub">
+        Turn a customer's usage profile into a clear retention signal.
+        The console reads the profile, scores the risk, and surfaces the strongest behavioral signals behind the decision.
+      </p>
+    </div>
+
+    <div class="hero-meta">
+      <div class="meta-tile">
+        <div class="meta-label">Decision</div>
+        <div class="meta-value lime">STAY / CHURN</div>
+      </div>
+      <div class="meta-tile">
+        <div class="meta-label">Signal scan</div>
+        <div class="meta-value">12 CUSTOMER SIGNALS</div>
+      </div>
+      <div class="meta-tile">
+        <div class="meta-label">Output</div>
+        <div class="meta-value">RISK + PROBABILITY</div>
+      </div>
+      <div class="meta-tile">
+        <div class="meta-label">Mode</div>
+        <div class="meta-value">INTERACTIVE</div>
+      </div>
+      <div class="meta-orbit">
+        <span>RETENTION / RISK / SIGNAL FLOW</span>
+        <div class="o1"></div><div class="o2"></div><div class="o3"></div><div class="o4"></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="workspace">
+    <section class="panel input-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Customer Signal Matrix</div>
+          <div class="panel-note">Enter the customer profile you want to evaluate</div>
+        </div>
+        <div class="counter">12 SIGNALS</div>
+      </div>
+
+      <form id="churnForm">
+        <div class="signal-grid">
+          
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">01</span>
+          <label for="f0">Call Failure</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f0" name="f0" type="number"
+               min="0" step="1" value="0"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">02</span>
+          <label for="f1">Complains</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f1" name="f1" type="number"
+               min="0" step="1" value="0"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">03</span>
+          <label for="f2">Subscription Length</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f2" name="f2" type="number"
+               min="0" step="1" value="12"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">04</span>
+          <label for="f3">Charge Amount</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f3" name="f3" type="number"
+               min="0" step="1" value="0"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">05</span>
+          <label for="f4">Seconds of Use</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f4" name="f4" type="number"
+               min="0" step="1" value="1000"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">06</span>
+          <label for="f5">Frequency of use</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f5" name="f5" type="number"
+               min="0" step="1" value="10"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">07</span>
+          <label for="f6">Frequency of SMS</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f6" name="f6" type="number"
+               min="0" step="1" value="10"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">08</span>
+          <label for="f7">Distinct Called Numbers</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f7" name="f7" type="number"
+               min="0" step="1" value="5"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">09</span>
+          <label for="f8">Age Group</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f8" name="f8" type="number"
+               min="0" step="1" value="3"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">10</span>
+          <label for="f9">Tariff Plan</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f9" name="f9" type="number"
+               min="0" step="1" value="1"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">11</span>
+          <label for="f10">Status</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f10" name="f10" type="number"
+               min="0" step="1" value="1"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+
+      <div class="signal-field">
+        <div class="field-top">
+          <span class="field-index">12</span>
+          <label for="f11">Customer Value</label>
+          <span class="field-type">NUM</span>
+        </div>
+        <input id="f11" name="f11" type="number"
+               min="0.0" step="1" value="100.0"
+               inputmode="decimal" autocomplete="off" required />
+      </div>
+
+        </div>
+
+        <div class="prompt-bar">
+          <div class="prompt-label">
+            <span>OPTIONAL ANALYST NOTE</span>
+            <span class="prompt-caret">_</span>
+          </div>
+          <textarea class="prompt-input" placeholder="Add a note about this customer profile, e.g. recent support issue, retention concern, or segment context..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="action-main" type="submit">RUN PREDICTION&nbsp;&nbsp;↗</button>
+          <button class="action-reset" type="button" id="resetBtn">RESET</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel output-panel">
+      <div class="output-inner">
+        <div class="output-head">
+          <div class="console-id">DECISION CONSOLE / <strong>01</strong></div>
+          <div class="console-id" id="runMeta">AWAITING PROFILE</div>
+        </div>
+
+        <div id="emptyState" class="empty">
+          <div>
+            <div class="empty-art"><div class="empty-core">//</div></div>
+            <h3>Waiting for a customer</h3>
+            <p>Enter the profile on the left. The console will convert the inputs into a retention decision and risk signal.</p>
+          </div>
+        </div>
+
+        <div id="result" hidden>
+          <div id="verdict" class="verdict">
+            <div id="verdictKicker" class="verdict-kicker">PREDICTION</div>
+            <div class="verdict-main">
+              <div id="riskWord" class="verdict-word">STAY</div>
+              <div class="risk-readout">
+                <span>CHURN PROBABILITY</span>
+                <strong id="riskScore">0.0%</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="ring-area">
+            <svg class="ring-svg" viewBox="0 0 220 220" aria-hidden="true">
+              <circle class="ring-track" cx="110" cy="110" r="92"></circle>
+              <circle id="riskRing" class="ring-progress" cx="110" cy="110" r="92"
+                      stroke-dasharray="578.05" stroke-dashoffset="578.05"></circle>
+            </svg>
+            <div class="ring-copy">
+              <small>RETENTION SIGNAL</small>
+              <strong id="ringScore">0.0%</strong>
+            </div>
+          </div>
+
+          <div class="prob-grid">
+            <div class="prob-tile stay">
+              <div class="label">LIKELY TO STAY</div>
+              <div id="stayValue" class="value">0.0%</div>
+            </div>
+            <div class="prob-tile churn">
+              <div class="label">LIKELY TO CHURN</div>
+              <div id="churnValue" class="value">0.0%</div>
+            </div>
+          </div>
+
+          <div class="signal-console">
+            <div class="console-title">
+              <span>STRONGEST PROFILE SIGNALS</span>
+              <span>IMPACT</span>
+            </div>
+            <div id="signalStack"></div>
+            <div class="machine-line">READOUT <span>READY</span> · POSITIVE SIGNAL = GREATER CHURN PRESSURE</div>
+          </div>
+
+          <div class="json-block"><pre id="jsonPreview"></pre></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer">
+    <span>CHURN//LAB · CUSTOMER RETENTION CONSOLE</span>
+    <span>PROFILE → SIGNALS → DECISION</span>
+  </div>
+</div>
+
+
+<script>
+const FEATURES = [{"name":"Call  Failure","id":"f0","label":"Call  Failure","default":0,"min":0,"step":1,"type":"number"},{"name":"Complains","id":"f1","label":"Complains","default":0,"min":0,"step":1,"type":"number"},{"name":"Subscription  Length","id":"f2","label":"Subscription  Length","default":12,"min":0,"step":1,"type":"number"},{"name":"Charge  Amount","id":"f3","label":"Charge  Amount","default":0,"min":0,"step":1,"type":"number"},{"name":"Seconds of Use","id":"f4","label":"Seconds of Use","default":1000,"min":0,"step":1,"type":"number"},{"name":"Frequency of use","id":"f5","label":"Frequency of use","default":10,"min":0,"step":1,"type":"number"},{"name":"Frequency of SMS","id":"f6","label":"Frequency of SMS","default":10,"min":0,"step":1,"type":"number"},{"name":"Distinct Called Numbers","id":"f7","label":"Distinct Called Numbers","default":5,"min":0,"step":1,"type":"number"},{"name":"Age Group","id":"f8","label":"Age Group","default":3,"min":0,"step":1,"type":"number"},{"name":"Tariff Plan","id":"f9","label":"Tariff Plan","default":1,"min":0,"step":1,"type":"number"},{"name":"Status","id":"f10","label":"Status","default":1,"min":0,"step":1,"type":"number"},{"name":"Customer Value","id":"f11","label":"Customer Value","default":100.0,"min":0.0,"step":1,"type":"number"}];
+const COEFFICIENTS = [0.16614118712631856,0.033634948009242084,-0.010187829871407962,-0.02066600987470023,-0.00013848867966628273,-0.0476541766945384,-0.014823561266345816,-0.010450288483889599,-0.0017449833061914393,-0.0012712734736932462,0.024089271711341082,0.006655026732016824];
+const INTERCEPT = -0.0009453832134399025;
+const CLASS_0 = 0.0;
+const CLASS_1 = 1.0;
+
+const form = document.getElementById("churnForm");
+const resetBtn = document.getElementById("resetBtn");
+const emptyState = document.getElementById("emptyState");
+const resultEl = document.getElementById("result");
+const verdict = document.getElementById("verdict");
+const verdictKicker = document.getElementById("verdictKicker");
+const riskScore = document.getElementById("riskScore");
+const ringScore = document.getElementById("ringScore");
+const riskWord = document.getElementById("riskWord");
+const riskRing = document.getElementById("riskRing");
+const stayValue = document.getElementById("stayValue");
+const churnValue = document.getElementById("churnValue");
+const signalStack = document.getElementById("signalStack");
+const runMeta = document.getElementById("runMeta");
+const jsonPreview = document.getElementById("jsonPreview");
+
+function sigmoid(z) {
+  if (z >= 0) {
+    const e = Math.exp(-z);
+    return 1 / (1 + e);
+  }
+  const e = Math.exp(z);
+  return e / (1 + e);
+}
+
+function readInputs() {
+  return FEATURES.map(f => {
+    const el = document.getElementById(f.id);
+    const value = Number(el.value);
+    if (!Number.isFinite(value)) throw new Error(`Invalid value for ${f.label}.`);
+    if (value < Number(f.min)) throw new Error(`${f.label} must be at least ${f.min}.`);
+    return value;
+  });
+}
+
+function predict(values) {
+  let z = INTERCEPT;
+  const contributions = [];
+  for (let i = 0; i < COEFFICIENTS.length; i++) {
+    const contribution = COEFFICIENTS[i] * values[i];
+    z += contribution;
+    contributions.push({
+      label: FEATURES[i].label.replace(/\s+/g, " ").trim(),
+      value: values[i],
+      coefficient: COEFFICIENTS[i],
+      contribution
+    });
+  }
+  const p1 = sigmoid(z);
+  const p0 = 1 - p1;
+  const prediction = p1 >= 0.5 ? CLASS_1 : CLASS_0;
+  return { prediction, p0, p1, z, contributions };
+}
+
+function renderSignals(contributions) {
+  const ranked = [...contributions]
+    .sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution))
+    .slice(0, 5);
+  const max = Math.max(...ranked.map(x => Math.abs(x.contribution)), 0.0001);
+
+  signalStack.innerHTML = ranked.map(x => {
+    const positive = x.contribution >= 0;
+    const width = Math.max(9, (Math.abs(x.contribution) / max) * 100);
+    return `
+      <div class="signal-row">
+        <div class="signal-name">
+          <span class="signal-dot ${positive ? "hot" : "cool"}"></span>
+          <span>${x.label}</span>
+        </div>
+        <div class="signal-track">
+          <div class="signal-fill ${positive ? "hot" : "cool"}" style="width:${width}%"></div>
+        </div>
+        <div class="signal-num ${positive ? "hot-text" : "cool-text"}">
+          ${positive ? "+" : ""}${x.contribution.toFixed(3)}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function showResult(result) {
+  const churnPct = result.p1 * 100;
+  const stayPct = result.p0 * 100;
+  const isChurn = result.prediction === 1;
+
+  emptyState.hidden = true;
+  resultEl.hidden = false;
+
+  verdict.className = `verdict ${isChurn ? "churn" : "stay"}`;
+  verdictKicker.textContent = isChurn ? "PREDICTION / ALERT" : "PREDICTION / STABLE";
+  riskScore.textContent = `${churnPct.toFixed(1)}%`;
+  ringScore.textContent = `${churnPct.toFixed(1)}%`;
+  riskWord.textContent = isChurn ? "CHURN" : "STAY";
+  stayValue.textContent = `${stayPct.toFixed(1)}%`;
+  churnValue.textContent = `${churnPct.toFixed(1)}%`;
+
+  const circumference = 2 * Math.PI * 92;
+  riskRing.style.strokeDasharray = `${circumference}`;
+  riskRing.style.strokeDashoffset = `${circumference * (1 - churnPct / 100)}`;
+
+  renderSignals(result.contributions);
+
+  const timestamp = new Date().toLocaleTimeString([], {
+    hour: "2-digit", minute: "2-digit", second: "2-digit"
+  });
+  runMeta.textContent = `RUN COMPLETE · ${timestamp} · z = ${result.z.toFixed(4)}`;
+
+  jsonPreview.textContent = JSON.stringify({
+    prediction: isChurn ? "CHURN" : "STAY",
+    churn_probability: Number(churnPct.toFixed(2)),
+    stay_probability: Number(stayPct.toFixed(2))
+  }, null, 2);
+}
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  try {
+    showResult(predict(readInputs()));
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  FEATURES.forEach(f => {
+    const el = document.getElementById(f.id);
+    if (el) el.value = f.default;
+  });
+  emptyState.hidden = false;
+  resultEl.hidden = true;
+  runMeta.textContent = "AWAITING INPUT";
+});
+</script>
+</body>
+</html>
