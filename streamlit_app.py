@@ -54,5 +54,4 @@ st.iframe(
     HTML_FILE,
     height=1280,
     width="stretch",
-    scrolling=True,
 )
